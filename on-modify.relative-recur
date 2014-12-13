@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+import datetime
+import json
+import sys
+import subprocess
+import uuid
+
+TIME_FORMAT = '%Y%m%dT%H%M%SZ'
+UDA_DUE = 'relativeRecurDue'
+UDA_WAIT = 'relativeRecurWait'
+
+# Hand back duration format parsing to task warrior
+def calc(statement):
+	calc = subprocess.Popen(['task', 'calc', statement], stdout=subprocess.PIPE)
+	out, err = calc.communicate()
+	# Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
+	return out.rstrip().translate(None, '-:') + 'Z'
+
+# Parse the modified task
+original = json.loads(sys.stdin.readline())
+modified = sys.stdin.readline()
+# Return the unmodified modified task, so it is actually changed
+print modified
+modified = json.loads(modified)
+
+# Has a task with UDA been marked as completed?
+if (UDA_DUE or UDA_WAIT) in original and original['status']!='completed' and modified['status']=='completed':
+	del original['modified']
+	if UDA_DUE in original:
+		original['due'] = calc(modified['end'] + '+' + original[UDA_DUE])
+	if UDA_WAIT in original:
+		original['wait'] = calc(modified['end'] + '+' + original[UDA_WAIT])
+		original['status'] = 'waiting'
+	else:
+		original['status'] = 'pending'
+	print 'Created follow-up task'
+	original['entry'] = modified['end']
+	original['uuid'] = str(uuid.uuid4())
+
+	# Return the follow-up task
+	print json.dumps(original)
