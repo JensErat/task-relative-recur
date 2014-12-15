@@ -13,8 +13,7 @@ UDA_WAIT = 'relativeRecurWait'
 def calc(statement):
 	calc = subprocess.Popen(['task', 'calc', statement], stdout=subprocess.PIPE)
 	out, err = calc.communicate()
-	# Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
-	return out.rstrip().translate(None, '-:') + 'Z'
+	return out.rstrip()
 
 # Parse the modified task
 original = json.loads(sys.stdin.readline())
