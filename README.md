@@ -6,7 +6,7 @@ This is a small hack providing relative recurring tasks with due date some perio
 
 ## Requirements
 
-[Hook support] comes with Task Warrior 2.4.0, the hook requires a build from 2014-12-15 or newer. It is written in Python 2.
+[Hook support] comes with Task Warrior 2.4.0. This hook requires Python 2.
 
 ## Installation
 
