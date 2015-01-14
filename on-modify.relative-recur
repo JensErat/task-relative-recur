@@ -24,7 +24,7 @@ print modified
 modified = json.loads(modified)
 
 # Has a task with UDA been marked as completed?
-if (UDA_DUE or UDA_WAIT) in original and original['status']!='completed' and modified['status']=='completed':
+if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='completed' and modified['status']=='completed':
 	del original['modified']
 	if UDA_DUE in original:
 		original['due'] = calc(modified['end'] + '+' + original[UDA_DUE])
