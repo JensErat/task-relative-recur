@@ -6,7 +6,9 @@ This is a small hack providing relative recurring tasks with due date some perio
 
 ## Requirements
 
-[Hook support] comes with Task Warrior 2.4.0. This hook requires Python 2.
+[Hook support] comes with Task Warrior 2.4.0. Use of a 2.4.1 build from git is recommended. It brings a fix for [TW-1491], which results in all date attributes being set to epoch 0 (1970-01-01) instead of being deleted.
+
+This hook works with both Python 2 and 3.
 
 ## Installation
 
@@ -46,5 +48,6 @@ Be aware that this only happens when the hook triggers on completion, for exampl
 [Jens Erat]: http://www.jenserat.de
 [Task Warrior]: http://taskwarrior.org
 [TW-235]: https://bug.tasktools.org/browse/TW-235
+[TW-1491]: https://bug.tasktools.org/browse/TW-1491
 [Hook support]: http://taskwarrior.org/docs/design/hooks.html
 [user defined attributes]: http://taskwarrior.org/docs/udas.html
