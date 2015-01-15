@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+from builtins import str
+
 import datetime
 import json
 import sys
@@ -17,13 +21,13 @@ def calc(statement):
 	calc = subprocess.Popen(['task', 'calc', statement], stdout=subprocess.PIPE, env=env)
 	out, err = calc.communicate()
 	# Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
-	return out.rstrip().translate(None, '-:') + 'Z'
+	return out.decode("utf-8").rstrip().replace('-', '').replace(':', '') + 'Z'
 
 # Parse the modified task
 original = json.loads(sys.stdin.readline())
 modified = sys.stdin.readline()
 # Return the unmodified modified task, so it is actually changed
-print modified
+print(modified)
 modified = json.loads(modified)
 
 # Has a task with UDA been marked as completed?
@@ -36,9 +40,9 @@ if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='comple
 		original['status'] = 'waiting'
 	else:
 		original['status'] = 'pending'
-	print 'Created follow-up task'
+	print('Created follow-up task')
 	original['entry'] = modified['end']
 	original['uuid'] = str(uuid.uuid4())
 
 	# Return the follow-up task
-	print json.dumps(original)
+	print(json.dumps(original))
