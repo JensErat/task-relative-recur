@@ -9,15 +9,18 @@ import sys
 import subprocess
 import uuid
 import os
+import tempfile
+import time
 
 TIME_FORMAT = '%Y%m%dT%H%M%SZ'
 UDA_DUE = 'relativeRecurDue'
 UDA_WAIT = 'relativeRecurWait'
 
+env = os.environ.copy()
+env['TZ'] = 'UTC0'
+
 # Hand back duration format parsing to task warrior
 def calc(statement):
-	env = os.environ.copy()
-	env['TZ'] = 'UTC0'
 	calc = subprocess.Popen(['task', 'calc', statement], stdout=subprocess.PIPE, env=env)
 	out, err = calc.communicate()
 	# Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
@@ -46,5 +49,23 @@ if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='comple
 	original['entry'] = modified['end']
 	original['uuid'] = str(uuid.uuid4())
 
-	# Return the follow-up task
-	print(json.dumps(original))
+	# Wait for taskwarrior to finish, so we can safely `task import` the new task
+	task_pid = os.getppid()
+	if (0 < os.fork()):
+		sys.exit(0)
+	else:
+		# taskwarrior also waits for stdout to close. Also close stderr to prevent
+		# warnings about closed stdout. Ouch.
+		os.close(sys.stderr.fileno())
+		os.close(sys.stdout.fileno())
+
+		# Wait for taskwarrior to finish
+		while (os.path.exists("/proc/%s" % str(task_pid))):
+			time.sleep(0.25)
+
+		# Import the follow-up task
+		with tempfile.NamedTemporaryFile() as new_task:
+			new_task.write(json.dumps(original));
+			new_task.flush();
+			add = subprocess.Popen(['task', 'import', new_task.name], env=env)
+			add.communicate();
