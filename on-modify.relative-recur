@@ -50,14 +50,16 @@ if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='comple
 	original['uuid'] = str(uuid.uuid4())
 
 	# Wait for taskwarrior to finish, so we can safely `task import` the new task
+	sys.stdout.flush()
 	task_pid = os.getppid()
 	if (0 < os.fork()):
 		sys.exit(0)
 	else:
-		# taskwarrior also waits for stdout to close. Also close stderr to prevent
-		# warnings about closed stdout. Ouch.
-		os.close(sys.stderr.fileno())
-		os.close(sys.stdout.fileno())
+		# Taskwarrior also waits for stdout to close
+		try:
+			os.close(sys.stdout.fileno())
+		except OSError:
+			pass # Thrown because of closing stdout. Don't worry, that's fine.
 
 		# Wait for taskwarrior to finish
 		while (os.path.exists("/proc/%s" % str(task_pid))):
