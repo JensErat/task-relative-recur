@@ -21,7 +21,7 @@ env['TZ'] = 'UTC0'
 
 # Hand back duration format parsing to task warrior
 def calc(statement):
-	calc = subprocess.Popen(['task', 'rc.date.iso=yes', 'calc', statement], stdout=subprocess.PIPE, env=env)
+	calc = subprocess.Popen(['task', 'rc.verbose=no', 'rc.date.iso=yes', 'calc', statement], stdout=subprocess.PIPE, env=env)
 	out, err = calc.communicate()
 	# Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
 	return out.decode("utf-8").rstrip().replace('-', '').replace(':', '') + 'Z'
