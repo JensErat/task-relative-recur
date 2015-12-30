@@ -21,7 +21,7 @@ env['TZ'] = 'UTC0'
 
 # Hand back duration format parsing to task warrior
 def calc(statement):
-	calc = subprocess.Popen(['task', 'rc.verbose=no', 'rc.date.iso=yes', 'calc', statement], stdout=subprocess.PIPE, env=env)
+	calc = subprocess.Popen(['task', 'rc.verbose=nothing', 'rc.date.iso=yes', 'calc', statement], stdout=subprocess.PIPE, env=env)
 	out, err = calc.communicate()
 	# Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
 	return out.decode("utf-8").rstrip().replace('-', '').replace(':', '') + 'Z'
@@ -69,5 +69,5 @@ if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='comple
 		with tempfile.NamedTemporaryFile(mode="wt") as new_task:
 			new_task.write(json.dumps(original));
 			new_task.flush();
-			add = subprocess.Popen(['task', 'rc.verbose=false', 'import', new_task.name], env=env)
+			add = subprocess.Popen(['task', 'rc.verbose=nothing', 'import', new_task.name], env=env)
 			add.communicate();
