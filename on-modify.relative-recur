@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# https://github.com/JensErat/task-relative-recur
 
 from __future__ import print_function
 from builtins import str
@@ -21,10 +22,10 @@ env['TZ'] = 'UTC0'
 
 # Hand back duration format parsing to task warrior
 def calc(statement):
-	calc = subprocess.Popen(['task', 'rc.verbose=nothing', 'rc.date.iso=yes', 'calc', statement], stdout=subprocess.PIPE, env=env)
-	out, err = calc.communicate()
-	# Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
-	return out.decode("utf-8").rstrip().replace('-', '').replace(':', '') + 'Z'
+  calc = subprocess.Popen(['task', 'rc.verbose=nothing', 'rc.date.iso=yes', 'calc', statement], stdout=subprocess.PIPE, env=env)
+  out, err = calc.communicate()
+  # Workaround for TW-1254 (https://bug.tasktools.org/browse/TW-1254)
+  return out.decode("utf-8").rstrip().replace('-', '').replace(':', '') + 'Z'
 
 # Parse the modified task
 original = json.loads(sys.stdin.readline())
@@ -35,39 +36,44 @@ modified = json.loads(modified)
 
 # Has a task with UDA been marked as completed?
 if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='completed' and modified['status']=='completed':
-	del original['modified']
-	if 'start' in original:
-		del original['start']
-	if UDA_DUE in original:
-		original['due'] = calc(modified['end'] + '+' + original[UDA_DUE])
-	if UDA_WAIT in original:
-		original['wait'] = calc(modified['end'] + '+' + original[UDA_WAIT])
-		original['status'] = 'waiting'
-	else:
-		original['status'] = 'pending'
-	print('Created follow-up task')
-	original['entry'] = modified['end']
-	original['uuid'] = str(uuid.uuid4())
+  del original['modified']
 
-	# Wait for taskwarrior to finish, so we can safely `task import` the new task
-	sys.stdout.flush()
-	task_pid = os.getppid()
-	if (0 < os.fork()):
-		sys.exit(0)
-	else:
-		# Taskwarrior also waits for stdout to close
-		try:
-			os.close(sys.stdout.fileno())
-		except OSError:
-			pass # Thrown because of closing stdout. Don't worry, that's fine.
+  if 'totalactivetime' in original:
+    del original['totalactivetime']
+  if 'start' in original:
+    del original['start']
+  if UDA_DUE in original:
+    original['due'] = calc(modified['end'] + '+' + original[UDA_DUE])
+  if UDA_WAIT in original:
+    original['wait'] = calc(modified['end'] + '+' + original[UDA_WAIT])
+    original['scheduled'] = calc(modified['end'] + '+' + original[UDA_WAIT])
+    original['status'] = 'waiting'
 
-		# Wait for taskwarrior to finish
-		while (os.path.exists("/proc/%s" % str(task_pid))):
-			time.sleep(0.25)
+  else:
+    original['status'] = 'pending'
+  print('Created follow-up task')
+  original['entry'] = modified['end']
+  original['uuid'] = str(uuid.uuid4())
 
-		# Import the follow-up task
-		with tempfile.NamedTemporaryFile(mode="wt") as new_task:
-			new_task.write(json.dumps(original));
-			new_task.flush();
-			add = subprocess.Popen(['task', 'rc.verbose=nothing', 'import', new_task.name], env=env)
-			add.communicate();
+  # Wait for taskwarrior to finish, so we can safely `task import` the new task
+  sys.stdout.flush()
+  task_pid = os.getppid()
+  if (0 < os.fork()):
+    sys.exit(0)
+  else:
+    # Taskwarrior also waits for stdout to close
+    try:
+      os.close(sys.stdout.fileno())
+    except OSError:
+      pass # Thrown because of closing stdout. Don't worry, that's fine.
+
+    # Wait for taskwarrior to finish
+    while (os.path.exists("/proc/%s" % str(task_pid))):
+      time.sleep(0.25)
+
+    # Import the follow-up task
+    with tempfile.NamedTemporaryFile(mode="wt") as new_task:
+      new_task.write(json.dumps(original));
+      new_task.flush();
+      add = subprocess.Popen(['task', 'rc.verbose=nothing', 'import', new_task.name], env=env)
+      add.communicate();
