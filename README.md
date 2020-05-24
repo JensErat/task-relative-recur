@@ -2,17 +2,17 @@
 
 (c) 2014 [Jens Erat] <email@jenserat.de>, MIT License
 
-This is a small hack providing relative recurring tasks with due date some period after completing the current task. [Task Warrior] will not learn such a feature before ["the Great Recurring Task rewrite of 201X, whenever that is"][TW-235], so this had to be dealt with.
+This is a small hack providing [relative recurring tasks][TW-150] with due date some period after completing the current task. [Taskwarrior] will not learn such a feature before ["the Great Recurrence rewrite", which has already been delayed for many years][Recurrence RFC], so this had to be dealt with.
 
 ## Requirements
 
 This hook requires a Task Warrior 2.4.2 build not older than 2015-02-22.
 
-This hook works with both Python 2 and 3.
+It works with both Python 2 and 3.
 
 ## Installation
 
-Link the python script into `~/.task/hooks`, creating this folder as needed. Furthermore, add two [user defined attributes] for recurring tasks:
+Link the python script into `~/.task/hooks`, creating this folder if needed. Then add two [user defined attributes] for recurring tasks:
 
     task config uda.relativeRecurDue.type duration
     task config uda.relativeRecurDue.label 'Rel. Rec. Due'
@@ -41,12 +41,12 @@ You can also complete waiting tasks. For example, you could water your plants ju
 
 ## Caveats
 
-For the initial tasks, no due date is automatically set. You might to add one manually, or just complete the task anyway (and mark it as done, so the follow-up task with correct wait and/or due dates are set).
+For the initial tasks, no due date is automatically set. You might add one manually, or just complete the task anyway (and mark it as done, so the follow-up task with correct wait and/or due dates are set).
 
 Be aware that this only happens when the hook triggers on completion, for example if completing a task on another host (like a phone running Mirakel) will complete without creating the follow-up task nor telling you so. A cleanup-job would be very similar to the script and easy to write, but nobody needed it hard enough yet to code it.
 
 [Jens Erat]: http://www.jenserat.de
-[Task Warrior]: http://taskwarrior.org
-[TW-235]: https://bug.tasktools.org/browse/TW-235
-[TW-1491]: https://bug.tasktools.org/browse/TW-1491
+[Taskwarrior]: http://taskwarrior.org
 [user defined attributes]: http://taskwarrior.org/docs/udas.html
+[Recurrence RFC]: https://taskwarrior.org/docs/design/recurrence.html
+[TW-150]: https://github.com/GothenburgBitFactory/taskwarrior/issues/203
