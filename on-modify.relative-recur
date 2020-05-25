@@ -38,6 +38,7 @@ modified = json.loads(modified)
 if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='completed' and modified['status']=='completed':
 	del original['modified']
 
+	# have follow-up task be created without active time created by time tracking hook https://github.com/kostajh/taskwarrior-time-tracking-hook
 	if 'totalactivetime' in original:
 		del original['totalactivetime']
 	if 'start' in original:
