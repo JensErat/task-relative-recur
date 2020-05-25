@@ -33,8 +33,22 @@ modified = sys.stdin.readline()
 print(modified)
 modified = json.loads(modified)
 
-# Has a task with UDA been marked as completed?
-if (UDA_DUE in original or UDA_WAIT in original) and original['status']!='completed' and modified['status']=='completed':
+
+def should_trigger_hook(orig, mod):
+	"""Has a task with UDA been marked as completed?"""
+	# Does the task have a relativeRecur UDA?
+	has_uda = False
+	for uda in {UDA_DUE, UDA_WAIT}:
+		if uda in orig:
+			has_uda = True
+			break
+
+	# Has the task been marked as completed?
+	marked_completed = orig['status'] != 'completed' and mod['status'] == 'completed'
+	return has_uda and marked_completed
+
+
+if should_trigger_hook(original, modified):
 	del original['modified']
 	if 'start' in original:
 		del original['start']
