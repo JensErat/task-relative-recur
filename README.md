@@ -16,12 +16,14 @@ Link the python script into `~/.task/hooks`, creating this folder if needed. The
 
     task config uda.relativeRecurDue.type duration
     task config uda.relativeRecurDue.label 'Rel. Rec. Due'
+    task config uda.relativeRecurScheduled.type duration
+    task config uda.relativeRecurScheduled.label 'Rel. Rec. Scheduled'
     task config uda.relativeRecurWait.type duration
     task config uda.relativeRecurWait.label 'Rel. Rec. Wait'
 
 ## Usage
 
-Create a task and set the `relativeRecurDue` and/or `relativeRecurWait` attributes. Some examples:
+Create a task and set the `relativeRecurDue`, `relativeRecurScheduled`, and/or `relativeRecurWait` attributes. Some examples:
 
 - You shouldn't mow your lawn more than once a week, but want to keep it short, so shouldn't wait for more than two weeks:
 
@@ -33,11 +35,11 @@ Create a task and set the `relativeRecurDue` and/or `relativeRecurWait` attribut
 
 - Is it vacation time yet? Don't go to often, otherwise your taskwarrior log will overfill:
 
-        task add 'Go on vacation' relativeRecurWait:2months
+        task add 'Go on vacation' relativeRecurWait:2months relativeRecurScheduled:2months
 
 After completion of any of them, follow-up tasks will automatically be created.
 
-You can also complete waiting tasks. For example, you could water your plants just before departing in vacation.
+You can also complete waiting tasks. For example, you could water your plants just before departing for vacation.
 
 ## Caveats
 
