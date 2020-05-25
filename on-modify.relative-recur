@@ -14,6 +14,7 @@ import time
 
 TIME_FORMAT = '%Y%m%dT%H%M%SZ'
 UDA_DUE = 'relativeRecurDue'
+UDA_SCHEDULED = 'relativeRecurScheduled'
 UDA_WAIT = 'relativeRecurWait'
 
 env = os.environ.copy()
@@ -38,7 +39,7 @@ def should_trigger_hook(orig, mod):
 	"""Has a task with UDA been marked as completed?"""
 	# Does the task have a relativeRecur UDA?
 	has_uda = False
-	for uda in {UDA_DUE, UDA_WAIT}:
+	for uda in {UDA_DUE, UDA_SCHEDULED, UDA_WAIT}:
 		if uda in orig:
 			has_uda = True
 			break
@@ -54,6 +55,8 @@ if should_trigger_hook(original, modified):
 		del original['start']
 	if UDA_DUE in original:
 		original['due'] = calc(modified['end'] + '+' + original[UDA_DUE])
+	if UDA_SCHEDULED in original:
+		original['scheduled'] = calc(modified['end'] + '+' + original[UDA_SCHEDULED])
 	if UDA_WAIT in original:
 		original['wait'] = calc(modified['end'] + '+' + original[UDA_WAIT])
 		original['status'] = 'waiting'
